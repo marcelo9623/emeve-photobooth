@@ -1,25 +1,478 @@
-<!doctype html><html lang='es'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1,viewport-fit=cover'><meta name='theme-color' content='#111'><title>Emeve PhotoBooth</title><style>
-*{box-sizing:border-box}body{margin:0;background:#101010;color:#fff;font-family:Arial,sans-serif}button,input,select{font:inherit}button{border:0;border-radius:14px;padding:13px 17px;color:#fff;background:#252525}.app{min-height:100vh;display:flex;flex-direction:column}.top{height:64px;padding:10px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #292929;background:#151515}.brand{font-size:21px;font-weight:800;letter-spacing:.5px}.brand b{color:#28a9ff}.gear{font-size:22px}.screen{display:none;flex:1}.screen.active{display:flex}.home{align-items:center;justify-content:center;text-align:center;padding:30px}.homeBox{max-width:650px;width:100%}.home h1{font-size:clamp(40px,8vw,78px);margin:0 0 8px}.home p{color:#aaa}.primary{background:#147fe3;font-size:20px;padding:17px 28px}.camera{width:min(900px,96vw);margin:auto;padding:16px}.videoBox{position:relative;background:#000;border-radius:20px;overflow:hidden;aspect-ratio:4/3}.videoBox video{width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}#count{position:absolute;inset:0;display:none;align-items:center;justify-content:center;font-size:clamp(80px,18vw,180px);font-weight:900;text-shadow:0 4px 25px #000}.dots{display:flex;justify-content:center;gap:9px;margin:13px}.dot{width:11px;height:11px;border-radius:50%;background:#444}.dot.done{background:#28a9ff}.actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}.result{align-items:center;justify-content:center;padding:20px}.resultBox{width:min(760px,96vw);text-align:center}.resultCanvas{background:#fff;max-width:100%;height:auto;border-radius:10px}.settings{padding:20px;overflow:auto}.settingsGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:15px;max-width:1100px;margin:auto}.card{background:#181818;border:1px solid #303030;border-radius:18px;padding:17px}.card h3{margin-top:0}.field{margin:12px 0}.field label{display:block;color:#aaa;font-size:13px;margin-bottom:6px}input,select{width:100%;background:#252525;color:#fff;border:1px solid #444;border-radius:10px;padding:11px}.danger{background:#9f2323}.secondary{background:#333}.design{padding:20px}.designGrid{max-width:1100px;margin:auto;display:grid;grid-template-columns:320px 1fr;gap:18px}.preview{background:#202020;border-radius:18px;padding:15px;text-align:center}.preview canvas{max-width:100%;height:auto;background:#fff}.hidden{display:none}@media(max-width:760px){.designGrid{grid-template-columns:1fr}.top{height:56px}}
-</style></head><body><div class='app'><header class='top'><div class='brand'>EMEVE <b>PHOTOBOOTH</b></div><button class='gear' id='adminBtn'>⚙️</button></header>
-<section id='home' class='screen active home'><div class='homeBox'><h1>EMEVE</h1><h2>PHOTOBOOTH</h2><p id='homeEvent'>Toca para comenzar</p><button class='primary' id='begin'>TOCAR PARA COMENZAR</button></div></section>
-<section id='capture' class='screen'><div class='camera'><div class='videoBox'><video id='video' autoplay muted playsinline></video><div id='count'></div></div><div class='dots' id='dots'></div><div class='actions'><button class='primary' id='take'>TOMAR FOTO</button><button class='secondary' id='cancel'>Cancelar</button></div></div></section>
-<section id='result' class='screen result'><div class='resultBox'><h2>RESULTADO</h2><canvas id='out' class='resultCanvas'></canvas><div class='actions' style='margin-top:15px'><button class='primary' id='save'>GUARDAR JPG</button><button class='primary' id='print'>IMPRIMIR</button><button class='secondary' id='again'>NUEVA SESIÓN</button></div></div></section>
-<section id='settings' class='screen settings'><div class='settingsGrid'><div class='card'><h3>Captura</h3><div class='field'><label>Formato</label><select id='format'><option value='2x6x2'>2 tiras 2×6 (3 fotos duplicadas)</option><option value='4x6'>4×6 horizontal</option><option value='2x6'>Una tira 2×6</option></select></div><div class='field'><label>Cuenta regresiva</label><select id='delay'><option value='3'>3 segundos</option><option value='5'>5 segundos</option><option value='10'>10 segundos</option></select></div><div class='field'><label>Fotos por sesión</label><select id='photos'><option value='3'>3</option><option value='5'>5</option><option value='10'>10</option></select></div><div class='field'><label>Nombre del evento</label><input id='event' placeholder='Ej. Matrimonio Juan y María'></div></div><div class='card'><h3>Diseño</h3><div class='field'><label>Texto superior</label><input id='topText' value='EMEVE PHOTOBOOTH'></div><div class='field'><label>Texto inferior</label><input id='bottomText' value='No hacemos eventos, creamos experiencias'></div><div class='field'><label>Fondo</label><input id='bg' type='color' value='#ffffff'></div><div class='field'><label>Color texto</label><input id='fg' type='color' value='#111111'></div><div class='field'><label>Marco PNG/JPG</label><input id='frame' type='file' accept='image/*'></div><button class='secondary' id='clearFrame'>Quitar marco</button></div><div class='card'><h3>Plantilla</h3><button class='primary' id='saveTemplate'>GUARDAR CONFIGURACIÓN</button><button class='secondary' id='closeSettings' style='margin-top:8px'>VOLVER A CABINA</button><p style='color:#888;font-size:13px'>La configuración queda guardada en este dispositivo.</p></div></div></section></div>
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111">
+<title>Emeve PhotoBooth</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#101010;color:#fff;font-family:Arial,sans-serif}
+button,input,select{font:inherit}
+button{border:0;border-radius:12px;padding:11px 15px;color:#fff;background:#252525;cursor:pointer}
+button:disabled{opacity:.5;cursor:not-allowed}
+.app{min-height:100vh;display:flex;flex-direction:column}
+.top{height:64px;padding:10px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #292929;background:#151515}
+.brand{font-size:21px;font-weight:800;letter-spacing:.5px}.brand b{color:#28a9ff}.gear{font-size:22px}
+.screen{display:none;flex:1}.screen.active{display:flex}
+.home{align-items:center;justify-content:center;text-align:center;padding:30px}.homeBox{max-width:650px;width:100%}
+.home h1{font-size:clamp(40px,8vw,78px);margin:0 0 8px}.home p{color:#aaa}
+.primary{background:#147fe3;font-size:18px;padding:15px 24px}.secondary{background:#333}.danger{background:#9f2323}
+.camera{width:min(900px,96vw);margin:auto;padding:16px}.videoBox{position:relative;background:#000;border-radius:20px;overflow:hidden;aspect-ratio:16/9}
+.videoBox video{width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
+#count{position:absolute;inset:0;display:none;align-items:center;justify-content:center;font-size:clamp(80px,18vw,180px);font-weight:900;text-shadow:0 4px 25px #000}
+.dots{display:flex;justify-content:center;gap:9px;margin:13px}.dot{width:11px;height:11px;border-radius:50%;background:#444}.dot.done{background:#28a9ff}
+.actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.result{align-items:center;justify-content:center;padding:20px}.resultBox{width:min(760px,96vw);text-align:center}
+.resultCanvas{background:#fff;max-width:100%;height:auto;border-radius:10px}
+.settings{padding:18px;overflow:auto}.settingsGrid{display:grid;grid-template-columns:330px minmax(500px,1fr) 300px;gap:15px;max-width:1500px;margin:auto}
+.card{background:#181818;border:1px solid #303030;border-radius:18px;padding:15px}.card h3{margin-top:0}.field{margin:10px 0}
+.field label{display:block;color:#aaa;font-size:13px;margin-bottom:6px}
+input,select{width:100%;background:#252525;color:#fff;border:1px solid #444;border-radius:9px;padding:10px}
+.help{color:#888;font-size:12px;line-height:1.45}
+.editorWrap{background:#111;border-radius:15px;padding:12px;display:flex;justify-content:center;align-items:center;min-height:540px;overflow:auto}
+.editorStage{position:relative;background:#fff;box-shadow:0 8px 35px #000;user-select:none;touch-action:none}
+.editorStage .photoBox{position:absolute;border:2px dashed #28a9ff;background:rgba(40,169,255,.08);cursor:move;display:flex;align-items:center;justify-content:center;overflow:visible}
+.photoBox.selected{border:3px solid #fff;box-shadow:0 0 0 2px #28a9ff}
+.photoBox .label{pointer-events:none;color:#111;background:rgba(255,255,255,.85);padding:4px 8px;border-radius:6px;font-weight:700;font-size:12px}
+.resizeHandle{position:absolute;right:-8px;bottom:-8px;width:17px;height:17px;background:#28a9ff;border:2px solid #fff;border-radius:50%;cursor:nwse-resize}
+.textElement{position:absolute;min-width:70px;padding:4px 7px;border:2px dashed transparent;cursor:move;white-space:nowrap}
+.textElement.selected{border-color:#28a9ff}
+.textElement .resizeHandle{display:none}
+.textElement.selected .resizeHandle{display:block}
+.toolbar{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px}
+.toolbar button{font-size:13px;padding:8px 10px}
+.layers{display:grid;gap:8px;max-height:360px;overflow:auto}
+.layer{background:#222;border:1px solid #383838;border-radius:9px;padding:9px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.layer.selected{border-color:#28a9ff}.layer button{padding:6px 8px;font-size:12px}
+.miniGrid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.smallBtn{padding:7px 9px;font-size:12px}
+.previewMini{background:#222;border-radius:10px;padding:8px;text-align:center}.previewMini canvas{max-width:100%;height:auto;background:#fff}
+.hidden{display:none}
+@media(max-width:1100px){.settingsGrid{grid-template-columns:300px 1fr}.rightCol{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:15px}}
+@media(max-width:760px){.settingsGrid{grid-template-columns:1fr}.rightCol{grid-column:auto;display:block}.top{height:56px}.editorWrap{min-height:430px}}
+
+.homePreview{position:relative;width:min(760px,94vw);aspect-ratio:16/9;margin:0 auto 12px;background:#000;border-radius:22px;overflow:hidden;box-shadow:0 15px 45px #000}
+.homePreview video{width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
+.homeOverlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:28px;background:linear-gradient(transparent,rgba(0,0,0,.7))}
+.homeTitle{font-size:clamp(25px,5vw,48px);font-weight:900}.homeTitle b{color:#28a9ff}
+.homeOverlay p{margin:5px 0 15px;color:#ddd}.homeQuick{display:flex;justify-content:center;gap:18px;flex-wrap:wrap;color:#aaa;font-size:12px;margin:8px}
+.modal{position:fixed;z-index:1000;inset:0;background:rgba(0,0,0,.82);display:flex;align-items:center;justify-content:center;padding:18px}
+.modal.hidden{display:none}.modalBox{width:min(900px,96vw);max-height:92vh;overflow:auto;background:#151515;border:1px solid #383838;border-radius:20px;padding:18px;box-shadow:0 20px 80px #000}
+.modalHead{display:flex;align-items:center;justify-content:space-between}.modalHead h2{margin:0}.modalHead button{background:#333}
+.deviceGrid{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-top:12px}.modalActions{display:flex;justify-content:flex-end;gap:10px;margin-top:15px}
+.layerControls{display:flex;gap:5px}.layerControls button{padding:5px 7px;font-size:12px}
+@media(max-width:760px){.deviceGrid{grid-template-columns:1fr}.modalBox{padding:12px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="top"><div class="brand">EMEVE <b>PHOTOBOOTH</b></div><button class="gear" id="adminBtn">⚙️</button></header>
+
+<section id="home" class="screen active home">
+  <div class="homeBox">
+    <div class="homePreview">
+      <video id="homeVideo" autoplay muted playsinline></video>
+      <div class="homeOverlay">
+        <div class="homeTitle">EMEVE <b>PHOTOBOOTH</b></div>
+        <p id="homeEvent">Vista previa de cámara</p>
+        <button class="primary" id="begin">▶ TOCAR PARA COMENZAR</button>
+      </div>
+    </div>
+    <div class="homeQuick">
+      <span id="cameraState">Cámara: no configurada</span>
+      <span id="printerState">Impresora: automática</span>
+    </div>
+    <button class="secondary" id="preEventSettings">⚙️ CONFIGURAR CÁMARA E IMPRESORA</button>
+  </div>
+</section>
+
+<section id="capture" class="screen">
+  <div class="camera"><div class="videoBox"><video id="video" autoplay muted playsinline></video><div id="count"></div></div>
+  <div class="dots" id="dots"></div><p id="captureStatus" style="text-align:center;color:#aaa">Preparando sesión…</p>
+  <div class="actions"><button class="secondary" id="cancel">Cancelar</button></div></div>
+</section>
+
+<section id="result" class="screen result">
+  <div class="resultBox"><h2>RESULTADO</h2><canvas id="out" class="resultCanvas"></canvas>
+  <div class="actions" style="margin-top:15px"><button class="primary" id="save">GUARDAR JPG</button><button class="primary" id="print">IMPRIMIR</button><button class="secondary" id="again">NUEVA SESIÓN</button></div></div>
+</section>
+
+
+<div id="deviceModal" class="modal hidden">
+  <div class="modalBox">
+    <div class="modalHead"><h2>⚙️ Configuración del evento</h2><button id="closeDeviceModal">✕</button></div>
+    <div class="deviceGrid">
+      <div class="card">
+        <h3>📷 Cámara</h3>
+        <div class="field"><label>Cámara</label><select id="cameraSelect"><option value="">Seleccionar cámara…</option></select></div>
+        <div class="field"><label>Resolución</label>
+          <select id="cameraResolution">
+            <option value="1920x1080">1920 × 1080 Full HD</option>
+            <option value="1280x720">1280 × 720 HD</option>
+            <option value="3840x2160">3840 × 2160 4K (si está disponible)</option>
+          </select>
+        </div>
+        <div class="field"><label>Orientación</label><select id="cameraFacing"><option value="user">Frontal</option><option value="environment">Trasera</option></select></div>
+        <button class="secondary" id="testCamera">PROBAR CÁMARA</button>
+        <p class="help">El navegador mostrará solamente las cámaras que el dispositivo permita utilizar.</p>
+      </div>
+      <div class="card">
+        <h3>🖨️ Impresora</h3>
+        <div class="field"><label>Modo de impresión</label>
+          <select id="printMode">
+            <option value="auto">Imprimir automáticamente al terminar</option>
+            <option value="manual">Preguntar antes de imprimir</option>
+            <option value="off">No imprimir automáticamente</option>
+          </select>
+        </div>
+        <div class="field"><label>Impresora</label><select id="printerSelect"><option value="">Impresora del sistema / navegador</option></select></div>
+        <div class="field"><label>Formato de papel</label><select id="paperSize"><option value="4x6">4 × 6 pulgadas</option><option value="2x6">2 × 6 pulgadas</option><option value="letter">Carta</option></select></div>
+        <div class="field"><label>Copias</label><input id="printCopies" type="number" min="1" max="10" value="1"></div>
+        <button class="primary" id="testPrint">PRUEBA DE IMPRESIÓN</button>
+        <p class="help">La selección directa de una impresora física depende de las capacidades del navegador/sistema operativo. El modo automático imprime sin volver a preguntar.</p>
+      </div>
+    </div>
+    <div class="modalActions"><button class="secondary" id="cancelDeviceSettings">CANCELAR</button><button class="primary" id="saveDeviceSettings">GUARDAR CONFIGURACIÓN</button></div>
+  </div>
+</div>
+
+<section id="settings" class="screen settings">
+<div class="settingsGrid">
+
+<div class="card">
+<h3>📸 Captura</h3>
+<div class="field"><label>Formato</label>
+<select id="format">
+<option value="2x6x2">2 tiras 2×6</option>
+<option value="2x6">Una tira 2×6</option>
+<option value="4x6">Foto 4×6 horizontal</option>
+<option value="square">Cuadrado Instagram</option>
+<option value="gif">GIF animado</option>
+</select></div>
+<div class="field"><label>Número de fotos por sesión</label>
+<select id="photos"><option>1</option><option>2</option><option>3</option><option>4</option></select></div>
+<div class="field"><label>Cuenta regresiva</label>
+<select id="delay"><option value="3">3 segundos</option><option value="5">5 segundos</option><option value="10">10 segundos</option></select></div>
+<div class="field"><label>Nombre del evento</label><input id="event" placeholder="Ej. Matrimonio Juan y María"></div>
+<p class="help">La cantidad de fotos ahora es configurable de 1 a 4. La plantilla se adapta automáticamente.</p>
+<hr style="border-color:#333">
+<h3>🖼️ Fondo</h3>
+<div class="field"><label>Color de fondo</label><input id="bg" type="color" value="#ffffff"></div>
+<div class="field"><label>Imagen de fondo (Canva / Photoshop)</label><input id="backgroundFile" type="file" accept="image/*"></div>
+<button class="secondary" id="clearBackground">Quitar fondo</button>
+<hr style="border-color:#333">
+<h3>✨ Overlay</h3>
+<div class="field"><label>PNG transparente encima de las fotos</label><input id="frame" type="file" accept="image/png,image/*"></div>
+<button class="secondary" id="clearFrame">Quitar overlay</button>
+<p class="help">Ideal para marcos, logos, flores y decoración. Las zonas transparentes dejan ver las fotos.</p>
+</div>
+
+<div class="card">
+<h3>🎨 Editor visual de plantilla</h3>
+<div class="toolbar">
+<button id="presetStrip">Tira 2×6</button><button id="preset4x6">4×6</button><button id="presetSquare">Instagram</button>
+<button id="addText">+ Texto</button><button id="addPhoto">+ Foto</button>
+</div>
+<div class="editorWrap"><div id="editorStage" class="editorStage"></div></div>
+<p class="help">Arrastra los recuadros azules para moverlos. Arrastra el punto azul de la esquina para cambiar su tamaño. Selecciona un texto para moverlo.</p>
+</div>
+
+<div class="rightCol">
+<div class="card">
+<h3>✏️ Elemento seleccionado</h3>
+<div id="elementControls"><p class="help">Selecciona una foto o texto en el editor.</p></div>
+</div>
+<div class="card">
+<h3>📚 Capas</h3>
+<div id="layers" class="layers"></div>
+</div>
+<div class="card">
+<h3>💾 Plantilla</h3>
+<button class="primary" id="saveTemplate" style="width:100%">GUARDAR PLANTILLA</button>
+<button class="secondary" id="closeSettings" style="width:100%;margin-top:8px">VOLVER A CABINA</button>
+<p class="help">La configuración queda guardada en este dispositivo.</p>
+</div>
+<div class="card">
+<h3>👀 Vista previa</h3>
+<div class="previewMini"><canvas id="designPreview"></canvas></div>
+</div>
+</div>
+
+</div>
+</section>
+</div>
+
 <script>
-const $=id=>document.getElementById(id);let stream=null,shots=[],frame=null;let cfg=JSON.parse(localStorage.getItem('emeveCfg')||'null')||{format:'2x6x2',delay:3,photos:3,event:'',topText:'EMEVE PHOTOBOOTH',bottomText:'No hacemos eventos, creamos experiencias',bg:'#ffffff',fg:'#111111',frame:null};
-function apply(){for(const k of ['format','delay','photos','event','topText','bottomText','bg','fg'])$(k).value=cfg[k];$('homeEvent').textContent=cfg.event||'Toca para comenzar';if(cfg.frame){let im=new Image();im.onload=()=>frame=im;im.src=cfg.frame}}
-function saveCfg(){for(const k of ['format','delay','photos','event','topText','bottomText','bg','fg'])cfg[k]=$(k).value;cfg.frame=frame?frame.src:null;localStorage.setItem('emeveCfg',JSON.stringify(cfg));$('homeEvent').textContent=cfg.event||'Toca para comenzar'}
-function show(id){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));$(id).classList.add('active')}
-function dots(){ $('dots').innerHTML='';for(let i=0;i<+cfg.photos;i++){let d=document.createElement('i');d.className='dot '+(i<shots.length?'done':'');$('dots').appendChild(d)}}
-async function camera(){if(!stream){try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false});$('video').srcObject=stream}catch(e){alert('No se pudo abrir la cámara. En iPad/iPhone debes abrir esta app desde HTTPS o como aplicación instalada y permitir Cámara.');return false}}return true}
+const $=id=>document.getElementById(id);
+let stream=null,shots=[],backgroundImg=null,overlayImg=null,selectedId=null,drag=null;
+
+const uid=()=>Math.random().toString(36).slice(2,9);
+
+const presets={
+ "2x6x2":{W:800,H:1200,items:[
+  {type:"photo",photo:1,x:5,y:7,w:40,h:25},{type:"photo",photo:2,x:5,y:37,w:40,h:25},{type:"photo",photo:3,x:5,y:67,w:40,h:25},
+  {type:"photo",photo:1,x:55,y:7,w:40,h:25},{type:"photo",photo:2,x:55,y:37,w:40,h:25},{type:"photo",photo:3,x:55,y:67,w:40,h:25}
+ ]},
+ "2x6":{W:400,H:1200,items:[
+  {type:"photo",photo:1,x:5,y:5,w:90,h:26},{type:"photo",photo:2,x:5,y:36.5,w:90,h:26},{type:"photo",photo:3,x:5,y:68,w:90,h:26}
+ ]},
+ "4x6":{W:1200,H:800,items:[
+  {type:"photo",photo:1,x:3,y:9,w:44,h:25},{type:"photo",photo:2,x:3,y:37.5,w:44,h:25},{type:"photo",photo:3,x:3,y:66,w:44,h:25},
+  {type:"photo",photo:1,x:53,y:9,w:44,h:25},{type:"photo",photo:2,x:53,y:37.5,w:44,h:25},{type:"photo",photo:3,x:53,y:66,w:44,h:25}
+ ]},
+ "square":{W:1080,H:1080,items:[
+  {type:"photo",photo:1,x:8,y:8,w:40,h:36},{type:"photo",photo:2,x:52,y:8,w:40,h:36},{type:"photo",photo:3,x:8,y:48,w:40,h:36},{type:"photo",photo:4,x:52,y:48,w:40,h:36}
+ ]},
+ "gif":{W:1080,H:1080,items:[{type:"photo",photo:1,x:5,y:5,w:90,h:80}]}
+};
+
+let cfg=JSON.parse(localStorage.getItem("emeveCfg2")||"null")||{
+ format:"2x6x2",photos:3,delay:3,event:"",bg:"#ffffff",background:null,overlay:null,
+ items:JSON.parse(JSON.stringify(presets["2x6x2"].items)), cameraId:"", cameraResolution:"1920x1080", cameraFacing:"user", printMode:"auto", printerId:"", paperSize:"4x6", printCopies:1
+};
+
+function outputSize(){let p=presets[cfg.format]||presets["2x6x2"];return {W:p.W,H:p.H}}
+function normalizeItems(){cfg.items=(cfg.items||[]).map(o=>({...o,id:o.id||uid()}));}
+normalizeItems();
+
+function apply(){
+ $("format").value=cfg.format;$("photos").value=String(cfg.photos);$("delay").value=String(cfg.delay);$("event").value=cfg.event||"";
+ $("bg").value=cfg.bg||"#ffffff";$("homeEvent").textContent=cfg.event||"Toca para comenzar";
+ if(cfg.background){let im=new Image();im.onload=()=>{backgroundImg=im;renderEditor()};im.src=cfg.background}
+ if(cfg.overlay){let im=new Image();im.onload=()=>{overlayImg=im;renderEditor()};im.src=cfg.overlay}
+ renderEditor();
+}
+function saveCfg(){
+ cfg.format=$("format").value;cfg.photos=+$("photos").value;cfg.delay=+$("delay").value;cfg.event=$("event").value;cfg.bg=$("bg").value;
+ cfg.items=cfg.items.filter(i=>i.type==="text"||i.type==="photo");
+ cfg.items.forEach(i=>{if(i.type==="photo")i.photo=Math.min(cfg.photos,Math.max(1,+i.photo||1))});
+ cfg.background=backgroundImg?backgroundImg.src:null;cfg.overlay=overlayImg?overlayImg.src:null;
+ localStorage.setItem("emeveCfg2",JSON.stringify(cfg));$("homeEvent").textContent=cfg.event||"Toca para comenzar";
+}
+function show(id){document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));$(id).classList.add("active")}
+
+function stageScale(){
+ const s=$("editorStage"),wrap=document.querySelector(".editorWrap"),{W,H}=outputSize();
+ let maxW=Math.max(260,wrap.clientWidth-30),maxH=Math.max(360,wrap.clientHeight-30),scale=Math.min(maxW/W,maxH/H);
+ return Math.max(.2,Math.min(1,scale));
+}
+function renderEditor(){
+ normalizeItems();const s=$("editorStage"),{W,H}=outputSize(),scale=stageScale();
+ s.style.width=W*scale+"px";s.style.height=H*scale+"px";s.innerHTML="";
+ s.style.backgroundColor=cfg.bg||"#fff";
+ if(backgroundImg){s.style.backgroundImage=`url("${backgroundImg.src}")`;s.style.backgroundSize="cover";s.style.backgroundPosition="center"}
+ cfg.items.forEach(item=>{
+  const el=document.createElement("div");el.dataset.id=item.id;el.className=item.type==="photo"?"photoBox":"textElement";
+  if(item.type==="photo"){el.innerHTML=`<span class="label">Foto ${item.photo}</span><span class="resizeHandle"></span>`}
+  else {el.textContent=item.text||"Texto";el.style.color=item.color||"#111";el.style.fontSize=((item.size||34)*scale)+"px";el.style.fontWeight=item.weight||"700";el.innerHTML=(item.text||"Texto")+`<span class="resizeHandle"></span>`}
+  el.style.left=(item.x/100*W*scale)+"px";el.style.top=(item.y/100*H*scale)+"px";el.style.width=(item.w/100*W*scale)+"px";el.style.height=(item.h/100*H*scale)+"px";
+  if(item.type==="text")el.style.lineHeight="1.15";
+  if(item.id===selectedId)el.classList.add("selected");
+  el.onpointerdown=e=>startDrag(e,item,el,false);
+  const rh=el.querySelector(".resizeHandle");if(rh)rh.onpointerdown=e=>{e.stopPropagation();startDrag(e,item,el,true)};
+  s.appendChild(el);
+ });
+ if(overlayImg){const ov=document.createElement("img");ov.src=overlayImg.src;ov.style.cssText="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none";s.appendChild(ov)}
+ renderControls();renderLayers();renderPreview();
+}
+function startDrag(e,item,el,resizing){
+ selectedId=item.id;renderEditor(); // refresh selection
+ const s=$("editorStage"),rect=s.getBoundingClientRect(),{W,H}=outputSize();
+ drag={item,resizing,startX:e.clientX,startY:e.clientY,startXv:item.x,startYv:item.y,startW:item.w,startH:item.h,scale:rect.width/W};
+ window.onpointermove=moveDrag;window.onpointerup=endDrag;e.preventDefault();
+}
+function moveDrag(e){
+ if(!drag)return;let d=drag,item=d.item,dx=(e.clientX-d.startX)/d.scale/W*100,dy=(e.clientY-d.startY)/d.scale/H*100;
+ if(d.resizing){item.w=Math.max(5,Math.min(100-d.startXv,d.startW+dx));item.h=Math.max(5,Math.min(100-d.startYv,d.startH+dy))}
+ else {item.x=Math.max(0,Math.min(100-item.w,d.startXv+dx));item.y=Math.max(0,Math.min(100-item.h,d.startYv+dy))}
+ renderEditor();
+}
+function endDrag(){window.onpointermove=null;window.onpointerup=null;drag=null}
+
+function renderControls(){
+ const c=$("elementControls"),it=cfg.items.find(x=>x.id===selectedId);
+ if(!it){c.innerHTML='<p class="help">Selecciona una foto o texto en el editor.</p>';return}
+ if(it.type==="photo"){
+  c.innerHTML=`<div class="field"><label>Foto asignada</label><select id="selPhoto">${Array.from({length:cfg.photos},(_,i)=>`<option value="${i+1}">Foto ${i+1}</option>`).join("")}</select></div>
+  <div class="miniGrid"><input id="ix" type="number" step=".5" value="${it.x}"><input id="iy" type="number" step=".5" value="${it.y}"><input id="iw" type="number" step=".5" value="${it.w}"><input id="ih" type="number" step=".5" value="${it.h}"></div>
+  <button class="danger smallBtn" id="deleteElement" style="margin-top:8px">Eliminar</button>`;
+  $("selPhoto").value=it.photo;
+  $("selPhoto").onchange=e=>{it.photo=+e.target.value;renderEditor()};
+  [["ix","x"],["iy","y"],["iw","w"],["ih","h"]].forEach(([id,k])=>$(id).oninput=e=>{it[k]=+e.target.value||0;renderEditor()});
+ }else{
+  c.innerHTML=`<div class="field"><label>Texto</label><input id="txt" value="${escapeHtml(it.text||"")}"></div>
+  <div class="miniGrid"><div><label style="font-size:11px;color:#aaa">Tamaño</label><input id="ts" type="number" value="${it.size||34}"></div><div><label style="font-size:11px;color:#aaa">Color</label><input id="tc" type="color" value="${it.color||"#111111"}"></div></div>
+  <div class="miniGrid"><input id="tx" type="number" step=".5" value="${it.x}"><input id="ty" type="number" step=".5" value="${it.y}"></div>
+  <button class="danger smallBtn" id="deleteElement" style="margin-top:8px">Eliminar</button>`;
+  $("txt").oninput=e=>{it.text=e.target.value;renderEditor()};$("ts").oninput=e=>{it.size=+e.target.value||12;renderEditor()};$("tc").oninput=e=>{it.color=e.target.value;renderEditor()};
+  $("tx").oninput=e=>{it.x=+e.target.value||0;renderEditor()};$("ty").oninput=e=>{it.y=+e.target.value||0;renderEditor()};
+ }
+ $("deleteElement").onclick=()=>{cfg.items=cfg.items.filter(x=>x.id!==it.id);selectedId=null;renderEditor()};
+}
+function escapeHtml(s){return String(s).replace(/"/g,"&quot;")}
+
+function renderLayers(){
+ const l=$("layers");l.innerHTML="";
+ const reversed=[...cfg.items].reverse();
+ reversed.forEach((it,ri)=>{
+   const realIndex=cfg.items.indexOf(it);
+   const d=document.createElement("div");d.className="layer "+(it.id===selectedId?"selected":"");
+   const name=it.type==="photo"?"📸 Foto "+it.photo:"🔤 "+(it.text||"Texto");
+   d.innerHTML=`<span>${name}</span><div class="layerControls">
+   <button title="Subir">⬆</button><button title="Bajar">⬇</button><button title="Al frente">⤒</button><button title="Al fondo">⤓</button><button title="Seleccionar">Seleccionar</button></div>`;
+   const btns=d.querySelectorAll("button");
+   btns[0].onclick=()=>moveLayer(realIndex,-1);
+   btns[1].onclick=()=>moveLayer(realIndex,1);
+   btns[2].onclick=()=>moveLayer(realIndex,-999);
+   btns[3].onclick=()=>moveLayer(realIndex,999);
+   btns[4].onclick=()=>{selectedId=it.id;renderEditor()};
+   l.appendChild(d);
+ });
+}
+function moveLayer(index,direction){
+ const arr=cfg.items;if(index<0||index>=arr.length)return;
+ const item=arr.splice(index,1)[0];
+ let target;
+ if(direction===-999)target=arr.length;
+ else if(direction===999)target=0;
+ else target=Math.max(0,Math.min(arr.length,index+direction));
+ arr.splice(target,0,item);renderEditor();
+}
+function renderPreview(){
+ const c=$("designPreview"),{W,H}=outputSize();c.width=W;c.height=H;const x=c.getContext("2d");
+ x.fillStyle=cfg.bg||"#fff";x.fillRect(0,0,W,H);
+ if(backgroundImg){x.drawImage(backgroundImg,0,0,W,H)}
+ cfg.items.forEach(it=>{if(it.type==="photo"){x.strokeStyle="#28a9ff";x.lineWidth=Math.max(2,W/400);x.strokeRect(W*it.x/100,H*it.y/100,W*it.w/100,H*it.h/100);x.fillStyle="#111";x.font="bold 24px Arial";x.textAlign="center";x.fillText("Foto "+it.photo,W*(it.x+it.w/2)/100,H*(it.y+it.h/2)/100)}})
+ cfg.items.filter(i=>i.type==="text").forEach(it=>{x.fillStyle=it.color||"#111";x.font=(it.weight||"700")+" "+(it.size||34)+"px Arial";x.textAlign="left";x.fillText(it.text||"Texto",W*it.x/100,H*(it.y+it.h/2)/100)});
+ if(overlayImg)x.drawImage(overlayImg,0,0,W,H);
+}
+
+function setPreset(name){
+ const p=presets[name];cfg.format=name;cfg.items=JSON.parse(JSON.stringify(p.items)).map(x=>({...x,id:uid()}));
+ cfg.items=cfg.items.filter(i=>i.type!=="photo"||i.photo<=cfg.photos);
+ if(cfg.format==="square"&&cfg.photos<4)cfg.items=cfg.items.filter(i=>i.photo<=cfg.photos);
+ selectedId=null;$("format").value=name;renderEditor();
+}
+function addText(){const it={id:uid(),type:"text",text:"Tu evento",x:20,y:90,w:60,h:7,size:34,color:"#111111",weight:"700"};cfg.items.push(it);selectedId=it.id;renderEditor()}
+function addPhoto(){const n=Math.min(cfg.photos,Math.max(1,...cfg.items.filter(i=>i.type==="photo").map(i=>i.photo),0)+1);const it={id:uid(),type:"photo",photo:n,x:15,y:15,w:70,h:20};cfg.items.push(it);selectedId=it.id;renderEditor()}
+
+async function enumerateCameras(){
+ try{
+   const devices=await navigator.mediaDevices.enumerateDevices();
+   const cams=devices.filter(d=>d.kind==="videoinput");
+   const sel=$("cameraSelect");if(!sel)return;
+   const current=sel.value||cfg.cameraId;
+   sel.innerHTML='<option value="">Seleccionar cámara…</option>';
+   cams.forEach((d,i)=>{const o=document.createElement("option");o.value=d.deviceId;o.textContent=d.label||("Cámara "+(i+1));sel.appendChild(o)});
+   if(current&&cams.some(c=>c.deviceId===current))sel.value=current;
+   $("cameraState").textContent=cams.length?"Cámaras disponibles: "+cams.length:"Cámara: no detectada";
+ }catch(e){}
+}
+async function openCamera(targetVideo=$("video")){
+ try{
+   if(stream)stream.getTracks().forEach(t=>t.stop());
+   const [rw,rh]=($("cameraResolution").value||cfg.cameraResolution||"1920x1080").split("x").map(Number);
+   const constraints={video:{width:{ideal:rw},height:{ideal:rh},facingMode:cfg.cameraFacing||"user"},audio:false};
+   if(cfg.cameraId)constraints.video.deviceId={exact:cfg.cameraId};
+   stream=await navigator.mediaDevices.getUserMedia(constraints);
+   targetVideo.srcObject=stream;
+   await targetVideo.play().catch(()=>{});
+   await enumerateCameras();
+   return true;
+ }catch(e){alert("No se pudo abrir la cámara. Revisa permisos y selecciona otra cámara.");return false}
+}
+async function camera(){
+ return await openCamera($("video"));
+}
+async function homeCamera(){
+ try{
+   if(!navigator.mediaDevices?.getUserMedia)return;
+   await openCamera($("homeVideo"));
+   await enumerateCameras();
+ }catch(e){}
+}
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
-async function take(){if(shots.length>=+cfg.photos)return;$('take').disabled=true;for(let i=+cfg.delay;i>0;i--){$('count').style.display='flex';$('count').textContent=i;await wait(1000)}$('count').style.display='none';let c=document.createElement('canvas');c.width=$('video').videoWidth||1280;c.height=$('video').videoHeight||960;c.getContext('2d').drawImage($('video'),0,0,c.width,c.height);shots.push(c.toDataURL('image/jpeg',.94));dots();$('take').disabled=false;if(shots.length>=+cfg.photos){setTimeout(makeOutput,350)}}
+function dots(){$("dots").innerHTML="";for(let i=0;i<cfg.photos;i++){let d=document.createElement("i");d.className="dot "+(i<shots.length?"done":"");$("dots").appendChild(d)}}
+async function countdown(seconds,n){$("captureStatus").textContent="Preparando Foto "+n+" de "+cfg.photos;for(let i=seconds;i>0;i--){$("count").style.display="flex";$("count").textContent=i;await wait(1000)}$("count").style.display="none";$("captureStatus").textContent="¡FOTO "+n+"!";await wait(120)}
+function captureFrame(){const c=document.createElement("canvas");c.width=1920;c.height=1080;const v=$("video"),ctx=c.getContext("2d"),vw=v.videoWidth||1920,vh=v.videoHeight||1080,target=1920/1080,src=vw/vh;let sx=0,sy=0,sw=vw,sh=vh;if(src>target){sw=Math.round(vh*target);sx=Math.round((vw-sw)/2)}else if(src<target){sh=Math.round(vw/target);sy=Math.round((vh-sh)/2)}ctx.save();ctx.translate(1920,0);ctx.scale(-1,1);ctx.drawImage(v,sx,sy,sw,sh,0,0,1920,1080);ctx.restore();return c.toDataURL("image/jpeg",.95)}
+async function take(){if(shots.length)return;$("cancel").disabled=true;for(let n=1;n<=cfg.photos;n++){await countdown(+cfg.delay,n);shots.push(captureFrame());dots();if(n<cfg.photos)await wait(350)}$("captureStatus").textContent="¡Sesión terminada!";await wait(450);makeOutput();$("cancel").disabled=false}
 function img(src){return new Promise(res=>{let im=new Image();im.onload=()=>res(im);im.src=src})}
-async function makeOutput(){let fmt=cfg.format,W=1200,H=800;if(fmt==='2x6x2'){W=1200;H=800}if(fmt==='2x6'){W=400;H=1200}$('out').width=W;$('out').height=H;let c=$('out'),x=c.getContext('2d');x.fillStyle=cfg.bg;x.fillRect(0,0,W,H);let images=await Promise.all(shots.map(img));if(fmt==='2x6x2'){drawStrip(x,0,0,600,800,images);drawStrip(x,600,0,600,800,images);x.strokeStyle='#aaa';x.setLineDash([8,8]);x.beginPath();x.moveTo(600,0);x.lineTo(600,800);x.stroke();x.setLineDash([])}else if(fmt==='2x6'){drawStrip(x,0,0,400,1200,images)}else{draw4x6(x,W,H,images)}if(frame)x.drawImage(frame,0,0,W,H);show('result')}
-function drawStrip(x,ox,oy,w,h,ims){x.save();x.translate(ox,oy);x.fillStyle=cfg.fg;x.textAlign='center';x.font='bold 27px Arial';x.fillText(cfg.event||cfg.topText,w/2,30);let top=50,bottom=55,area=h-top-bottom,n=ims.length,slot=area/n;ims.forEach((im,i)=>x.drawImage(im,8,top+i*slot+4,w-16,slot-8));x.font='15px Arial';x.fillText(cfg.bottomText,w/2,h-17);x.lineWidth=5;x.strokeStyle=cfg.fg;x.strokeRect(3,3,w-6,h-6);x.restore()}
-function draw4x6(x,W,H,ims){x.fillStyle=cfg.fg;x.textAlign='center';x.font='bold 32px Arial';x.fillText(cfg.event||cfg.topText,W/2,40);let top=65,bottom=55,slot=(H-top-bottom)/ims.length;ims.forEach((im,i)=>x.drawImage(im,30,top+i*slot+5,W-60,slot-10));x.font='16px Arial';x.fillText(cfg.bottomText,W/2,H-20);x.lineWidth=6;x.strokeStyle=cfg.fg;x.strokeRect(3,3,W-6,H-6)}
-$('begin').onclick=async()=>{saveCfg();shots=[];dots();if(await camera())show('capture')};$('take').onclick=take;$('cancel').onclick=()=>{shots=[];show('home')};$('again').onclick=()=>{shots=[];dots();show('home')};$('adminBtn').onclick=()=>show('settings');$('closeSettings').onclick=()=>{saveCfg();show('home')};$('saveTemplate').onclick=()=>{saveCfg();alert('Configuración guardada en este dispositivo.')};
-$('frame').onchange=e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{let im=new Image();im.onload=()=>{frame=im;saveCfg()};im.src=r.result};r.readAsDataURL(f)};$('clearFrame').onclick=()=>{frame=null;cfg.frame=null;saveCfg();$('frame').value=''};
-$('save').onclick=()=>{let a=document.createElement('a');a.download='emeve-photobooth.jpg';a.href=$('out').toDataURL('image/jpeg',.95);a.click()};$('print').onclick=()=>{let w=window.open('','_blank');if(!w){alert('Permite ventanas emergentes para imprimir.');return}w.document.write('<html><head><style>@page{size:6in 4in;margin:0}body{margin:0}img{width:6in;height:4in}</style></head><body><img src="'+$('out').toDataURL('image/jpeg',.95)+'"><script>onload=()=>print()<\\/script></body></html>');w.document.close()};
-apply();dots();
-</script></body></html>
+
+async function makeOutput(){
+ const {W,H}=outputSize();$("out").width=W;$("out").height=H;const c=$("out"),x=c.getContext("2d");
+ x.fillStyle=cfg.bg||"#fff";x.fillRect(0,0,W,H);if(backgroundImg)x.drawImage(backgroundImg,0,0,W,H);
+ const images=await Promise.all(shots.map(img));
+ cfg.items.forEach(it=>{
+  if(it.type==="photo"){const im=images[Math.min(cfg.photos,it.photo)-1];if(!im)return;const px=W*it.x/100,py=H*it.y/100,pw=W*it.w/100,ph=H*it.h/100;drawCrop(x,im,px,py,pw,ph)}
+  else{x.fillStyle=it.color||"#111";x.font=(it.weight||"700")+" "+(it.size||34)+"px Arial";x.textAlign="left";x.fillText(it.text||"Texto",W*it.x/100,H*(it.y+it.h*.7)/100)}
+ });
+ if(overlayImg)x.drawImage(overlayImg,0,0,W,H);show("result"); if(cfg.printMode==="auto") setTimeout(()=>printResult(false),500);
+}
+function drawCrop(x,im,px,py,pw,ph){x.save();x.beginPath();x.rect(px,py,pw,ph);x.clip();const ir=im.width/im.height,tr=pw/ph;let sw=im.width,sh=im.height;if(ir>tr)sw=im.height*tr;else sh=im.width/tr;x.drawImage(im,(im.width-sw)/2,(im.height-sh)/2,sw,sh,px,py,pw,ph);x.restore()}
+
+$("begin").onclick=async()=>{saveCfg();shots=[];dots();if(await camera()){show("capture");take()}};
+$("cancel").onclick=()=>{shots=[];dots();$("count").style.display="none";$("captureStatus").textContent="Preparando sesión…";show("home");$("cancel").disabled=false};
+$("again").onclick=()=>{shots=[];dots();show("home")};
+$("adminBtn").onclick=()=>{renderEditor();show("settings")};
+$("closeSettings").onclick=()=>{saveCfg();show("home")};
+$("saveTemplate").onclick=()=>{saveCfg();alert("Plantilla guardada en este dispositivo.")};
+$("presetStrip").onclick=()=>setPreset("2x6");
+$("preset4x6").onclick=()=>setPreset("4x6");
+$("presetSquare").onclick=()=>setPreset("square");
+$("addText").onclick=addText;$("addPhoto").onclick=addPhoto;
+$("format").onchange=()=>setPreset($("format").value);
+$("photos").onchange=()=>{cfg.photos=+$("photos").value;cfg.items=cfg.items.filter(i=>i.type!=="photo"||i.photo<=cfg.photos);renderEditor()};
+["bg","event"].forEach(id=>$(id).oninput=()=>{if(id==="bg")cfg.bg=$(id).value;renderEditor()});
+$("backgroundFile").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{let im=new Image();im.onload=()=>{backgroundImg=im;cfg.background=r.result;renderEditor()};im.src=r.result};r.readAsDataURL(f)};
+$("clearBackground").onclick=()=>{backgroundImg=null;cfg.background=null;$("backgroundFile").value="";renderEditor()};
+$("frame").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{let im=new Image();im.onload=()=>{overlayImg=im;cfg.overlay=r.result;renderEditor()};im.src=r.result};r.readAsDataURL(f)};
+$("clearFrame").onclick=()=>{overlayImg=null;cfg.overlay=null;$("frame").value="";renderEditor()};
+$("save").onclick=()=>{const a=document.createElement("a");a.download="emeve-photobooth.jpg";a.href=$("out").toDataURL("image/jpeg",.95);a.click()};
+$("print").onclick=()=>printResult(false);
+
+async function openDeviceModal(){
+ $("deviceModal").classList.remove("hidden");
+ await enumerateCameras();
+ $("cameraSelect").value=cfg.cameraId||"";
+ $("cameraResolution").value=cfg.cameraResolution||"1920x1080";
+ $("cameraFacing").value=cfg.cameraFacing||"user";
+ $("printMode").value=cfg.printMode||"auto";
+ $("printerSelect").value=cfg.printerId||"";
+ $("paperSize").value=cfg.paperSize||"4x6";
+ $("printCopies").value=cfg.printCopies||1;
+}
+function closeDeviceModal(){$("deviceModal").classList.add("hidden")}
+$("preEventSettings").onclick=openDeviceModal;
+$("closeDeviceModal").onclick=closeDeviceModal;
+$("cancelDeviceSettings").onclick=closeDeviceModal;
+$("saveDeviceSettings").onclick=async()=>{
+ cfg.cameraId=$("cameraSelect").value;cfg.cameraResolution=$("cameraResolution").value;cfg.cameraFacing=$("cameraFacing").value;
+ cfg.printMode=$("printMode").value;cfg.printerId=$("printerSelect").value;cfg.paperSize=$("paperSize").value;cfg.printCopies=Math.max(1,+$("printCopies").value||1);
+ localStorage.setItem("emeveCfg2",JSON.stringify(cfg));
+ $("printerState").textContent=cfg.printMode==="auto"?"Impresión: automática":"Impresión: "+(cfg.printMode==="manual"?"manual":"desactivada");
+ closeDeviceModal();await homeCamera();
+};
+$("testCamera").onclick=async()=>{
+ cfg.cameraId=$("cameraSelect").value;cfg.cameraResolution=$("cameraResolution").value;cfg.cameraFacing=$("cameraFacing").value;
+ await openCamera($("homeVideo"));await enumerateCameras();
+};
+$("cameraFacing").onchange=async()=>{cfg.cameraFacing=$("cameraFacing").value;await openCamera($("homeVideo"));await enumerateCameras()};
+$("cameraSelect").onchange=async()=>{cfg.cameraId=$("cameraSelect").value;await openCamera($("homeVideo"));await enumerateCameras()};
+$("testPrint").onclick=()=>{
+ const old=$("printMode").value;$("printMode").value="manual";printResult(true);$("printMode").value=old;
+};
+function printResult(isTest=false){
+ let w=window.open("","_blank");
+ if(!w){alert("Permite ventanas emergentes para imprimir.");return}
+ const copies=Math.max(1,+cfg.printCopies||1);
+ const {W,H}=outputSize();
+ const image=$("out").toDataURL("image/jpeg",.95);
+ let imgs=Array.from({length:copies},()=>`<img src="${image}">`).join("");
+ w.document.write(`<html><head><style>@page{margin:0}body{margin:0}img{display:block;width:100vw;height:auto;page-break-after:always}</style></head><body>${imgs}<script>onload=()=>print()<\/script></body></html>`);
+ w.document.close();
+}
+
+apply();dots();$("printerState").textContent=cfg.printMode==="auto"?"Impresión: automática":"Impresión: "+(cfg.printMode==="manual"?"manual":"desactivada");homeCamera();
+</script>
+</body>
+</html>
